@@ -61,11 +61,11 @@
                     userMetadata: []
             }
         }
-
-        post {
-            always {
-                junit **/reports/**/*.xml
-            }
+    }
+    post {
+        always {
+            junit **/reports/**/*.xml
         }
     }
 }
+
