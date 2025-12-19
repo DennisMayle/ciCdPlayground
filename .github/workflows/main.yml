@@ -4,12 +4,17 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to tag (e.g., v1.0.0)'
+        required: true
+        type: string
   
 permissions:
   checks: write
   pull-requests: write
   id-token: write
-  contents: read
+  contents: write
   pages: write
 
 jobs:
@@ -36,3 +41,10 @@ jobs:
       with:
         files: |
           **/reports/**/*.xml
+    - name: Create and push git tag
+      if: success() && github.event_name == 'workflow_dispatch'
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git tag ${{ github.event.inputs.version }}
+        git push origin ${{ github.event.inputs.version }}
