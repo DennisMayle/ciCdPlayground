@@ -4,7 +4,6 @@
 	export let associations;
 	export let tools;
 	export let expectations;
-	export let hobbies;
 </script>
 
 <main>
