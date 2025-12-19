@@ -1,10 +1,22 @@
-pipeline {
+﻿pipeline {
     agent any
+    options {
+        description 'CI/CD Pipeline for Workshop App: Handles build, test, and S3 deployment'  
+    }
+
     tools {
         nodejs 'yarn'
     }
 
     stages {
+        stage('Set Build Info') {
+            steps {
+                script {
+                    currentBuild.displayName = "#${env.BUILD_NUMBER} - ${env.GIT_BRANCH}"  
+                }
+            }
+        }
+
         stage('install') {
             steps {
                 sh 'yarn'
@@ -23,7 +35,6 @@ pipeline {
                 sh 'yarn test:e2e'
             }
         }
-
 
         stage('deploy') {
             steps {
@@ -48,6 +59,12 @@ pipeline {
                     pluginFailureResultConstraint: 'FAILURE', 
                     profileName: 'role-based-access', 
                     userMetadata: []
+            }
+        }
+
+        post {
+            always {
+                junit **/reports/**/*.xml
             }
         }
     }
