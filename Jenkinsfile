@@ -1,37 +1,34 @@
 ﻿pipeline {
     agent any
-    options {
-        description 'CI/CD Pipeline for Workshop App: Handles build, test, and S3 deployment'  
-    }
-
     tools {
         nodejs 'yarn'
     }
 
     stages {
-        stage('Set Build Info') {
-            steps {
-                script {
-                    currentBuild.displayName = "#${env.BUILD_NUMBER} - ${env.GIT_BRANCH}"  
-                }
-            }
-        }
-
         stage('install') {
             steps {
                 sh 'yarn'
             }
         }
 
-        stage('build') {
+        stage('test') {
             steps {
-                sh 'yarn build'
+                sh 'yarn test'
             }
         }
 
-        stage('testing'){
-            steps{
-                sh 'yarn test'
+        stage('build') {
+            steps {
+                script {
+                    currentBuild.displayName = "Build - #${currentBuild.number} - ${env.GIT_COMMIT.take(7)}"
+                    currentBuild.description = "This is the build of my CICD workshop fork."
+                    sh 'yarn build'
+                }
+            }
+        }
+
+        stage('integrationtest') {
+            steps {
                 sh 'yarn test:e2e'
             }
         }
@@ -62,10 +59,12 @@
             }
         }
     }
+
     post {
         always {
+            // Publish JUnit test results
             junit '**/reports/**/*.xml'
         }
     }
-}
 
+}
